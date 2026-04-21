@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P6TI - 物理学概念性格测试</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 统一的 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#8B5CF6',
+                        accent: '#10B981',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(to right, #3B82F6, #8B5CF6);
+            }
+            .btn-3d {
+                @apply relative px-6 py-3 rounded-lg font-bold transform transition-all duration-150 overflow-hidden;
+                box-shadow: 0 4px 0 0 var(--tw-shadow-color);
+            }
+            .btn-3d:active {
+                @apply translate-y-1;
+                box-shadow: 0 2px 0 0 var(--tw-shadow-color);
+            }
+            .btn-3d-primary {
+                @apply bg-primary text-white shadow-primary;
+                --tw-shadow-color: #2563EB;
+            }
+            .btn-3d-secondary {
+                @apply bg-secondary text-white shadow-secondary;
+                --tw-shadow-color: #7C3AED;
+            }
+            .btn-3d-accent {
+                @apply bg-accent text-white shadow-accent;
+                --tw-shadow-color: #059669;
+            }
+            .btn-3d-light {
+                @apply bg-white text-dark shadow-gray-300;
+                --tw-shadow-color: #D1D5DB;
+            }
+            .btn-3d-dark {
+                @apply bg-dark text-white shadow-gray-700;
+                --tw-shadow-color: #374151;
+            }
+            .reflection {
+                @apply absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/30 to-transparent z-0;
+            }
+            .card-3d {
+                @apply bg-white rounded-xl shadow-lg border border-gray-100;
+                transform-style: preserve-3d;
+                transform: perspective(1000px);
+            }
+            .card-3d::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 10px;
+                background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 50%);
+                border-radius: 12px 12px 0 0;
+                z-index: 1;
+            }
+            .progress-bar {
+                @apply w-full bg-gray-200 h-3 rounded-full overflow-hidden;
+            }
+            .progress-value {
+                @apply h-full rounded-full transition-all duration-500 ease-out relative;
+            }
+            .option-btn {
+                @apply relative px-6 py-4 rounded-xl bg-white border-2 border-gray-300 
+                shadow-[0_4px_0_0_#d1d5db] text-gray-800 font-medium text-left w-full mb-3 
+                transform active:translate-y-1 active:shadow-[0_2px_0_0_#d1d5db] 
+                hover:bg-gray-50 transition-all duration-150;
+            }
+            .option-btn.selected {
+                @apply bg-blue-100 border-blue-500 shadow-[0_4px_0_0_#3B82F6];
+            }
+            .option-btn:hover .option-icon {
+                @apply bg-blue-100 text-blue-500;
+            }
+            .option-icon {
+                @apply w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3 transition-colors duration-150;
+            }
+            .physics-card {
+                @apply relative overflow-hidden rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl;
+            }
+            .physics-card::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                    to bottom right,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.05) 50%,
+                    transparent 51%
+                );
+                transform: rotate(45deg);
+                transition: all 0.5s;
+                opacity: 0;
+            }
+            .physics-card:hover::before {
+                opacity: 1;
+                top: -30%;
+                left: -30%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 顶部导航栏 -->
+        <header class="flex justify-between items-center mb-8">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center mr-3">
+                    <span class="text-white font-bold text-lg">P</span>
+                </div>
+                <h1 class="text-2xl font-bold text-gradient">P6TI 物理学概念测试</h1>
+            </div>
+            <nav>
+                <button id="theme-toggle" class="btn-3d btn-3d-light px-4 py-2">
+                    <span class="relative z-10"><i class="fa fa-moon-o mr-2"></i>切换主题</span>
+                    <div class="reflection"></div>
+                </button>
+            </nav>
+        </header>
+
+        <!-- 主内容区域 -->
+        <main>
+            <!-- 欢迎页面 -->
+            <section id="welcome-section" class="card-3d p-8 mb-8">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-6 md:mb-0 md:pr-8">
+                        <h2 class="text-3xl font-bold mb-4 text-dark">你更像哪个物理学概念？</h2>
+                        <p class="text-gray-600 mb-6">通过回答一系列有趣的问题，发现你的性格特质与哪个物理学概念最为相似。这个测试将帮助你更深入地了解自己，同时也能学到一些有趣的物理学知识！</p>
+                        <div class="flex flex-col space-y-3">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                                    <i class="fa fa-check"></i>
+                                </div>
+                                <span>回答 30-40 道趣味问题</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                                    <i class="fa fa-line-chart"></i>
+                                </div>
+                                <span>获取详细的性格分析报告</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-3">
+                                    <i class="fa fa-lightbulb-o"></i>
+                                </div>
+                                <span>了解相关物理学知识</span>
+                            </div>
+                        </div>
+                        <button id="start-test-btn" class="btn-3d btn-3d-primary mt-8 w-full md:w-auto">
+                            <span class="relative z-10">开始测试</span>
+                            <div class="reflection"></div>
+                        </button>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="relative w-64 h-64">
+                            <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full animate-pulse-slow"></div>
+                            <div class="absolute inset-4 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full animate-float"></div>
+                            <div class="absolute inset-8 bg-gradient-to-r from-primary/40 to-secondary/40 rounded-full animate-pulse"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fa fa-atom text-5xl text-gradient"></i>
+                                    <p class="mt-4 font-bold text-lg text-dark">探索你的物理学特质</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 测试页面 -->
+            <section id="test-section" class="hidden">
+                <!-- 进度条 -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-600">问题 <span id="current-question">1</span>/<span id="total-questions">35</span></span>
+                        <span class="text-sm font-medium text-gray-600">完成度: <span id="progress-percentage">0%</span></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-value" class="progress-value bg-gradient-to-r from-primary to-secondary" style="width: 0%">
+                            <div class="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 问题卡片 -->
+                <div class="card-3d p-6 mb-6">
+                    <h3 id="question-text" class="text-xl font-bold mb-6 text-dark"></h3>
+                    <div id="options-container" class="space-y-3">
+                        <!-- 选项将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 导航按钮 -->
+                <div class="flex justify-between">
+                    <button id="prev-btn" class="btn-3d btn-3d-light opacity-50 cursor-not-allowed" disabled>
+                        <span class="relative z-10"><i class="fa fa-arrow-left mr-2"></i>上一题</span>
+                        <div class="reflection"></div>
+                    </button>
+                    <button id="next-btn" class="btn-3d btn-3d-primary opacity-50 cursor-not-allowed" disabled>
+                        <span class="relative z-10">下一题<i class="fa fa-arrow-right ml-2"></i></span>
+                        <div class="reflection"></div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 结果页面 -->
+            <section id="result-section" class="hidden">
+                <div class="card-3d p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-dark">你的物理学概念分析结果</h2>
+                    
+                    <!-- 主要结果 -->
+                    <div class="flex flex-col md:flex-row items-center mb-8">
+                        <div class="md:w-1/3 mb-6 md:mb-0 flex justify-center">
+                            <div class="relative w-48 h-48">
+                                <div class="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full animate-pulse-slow"></div>
+                                <div class="absolute inset-4 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full animate-float"></div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div id="result-icon" class="text-6xl text-gradient"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:w-2/3 md:pl-8">
+                            <h3 id="result-title" class="text-2xl font-bold mb-2 text-dark"></h3>
+                            <p id="result-description" class="text-gray-600 mb-4"></p>
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 h-2 rounded-full mr-3">
+                                    <div id="result-match" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full" style="width: 95%"></div>
+                                </div>
+                                <span id="result-percentage" class="text-sm font-bold text-dark">95%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 详细分析 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold mb-4 text-dark">详细分析</h4>
+                        <div id="result-details" class="bg-gray-50 rounded-lg p-6 text-gray-700"></div>
+                    </div>
+
+                    <!-- 物理学知识 -->
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold mb-4 text-dark">物理学知识</h4>
+                        <div id="physics-info" class="bg-gray-50 rounded-lg p-6 text-gray-700"></div>
+                    </div>
+
+                    <!-- 其他匹配概念 -->
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 text-dark">其他可能的匹配</h4>
+                        <div id="other-matches" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- 其他匹配将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+
+                    <!-- 重新测试按钮 -->
+                    <div class="mt-8 text-center">
+                        <button id="retake-test-btn" class="btn-3d btn-3d-secondary">
+                            <span class="relative z-10">重新测试</span>
+                            <div class="reflection"></div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>P6TI 物理学概念测试 &copy; 2025 | 一个有趣的性格测试网站</p>
+            <div class="mt-2 flex justify-center space-x-4">
+                <a href="#" class="hover:text-primary transition-colors">关于我们</a>
+                <a href="#" class="hover:text-primary transition-colors">联系方式</a>
+                <a href="#" class="hover:text-primary transition-colors">隐私政策</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 测试题目数据
+        const questions = [
+            {
+                id: 1,
+                text: "在社交场合中，你更喜欢：",
+                options: [
+                    { id: "A", text: "成为焦点，活跃气氛", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "B", text: "观察他人，倾听对话", points: { "电磁波": 1, "量子纠缠": 2, "黑洞": 3, "相对论": 1, "热力学第二定律": 2 } },
+                    { id: "C", text: "与少数亲密朋友深入交流", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 1, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "D", text: "分析社交动态，寻找规律", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 3, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 2,
+                text: "当面对挑战时，你的反应是：",
+                options: [
+                    { id: "A", text: "直接面对，迅速行动", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 2, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "B", text: "深入思考，寻找创新解决方案", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 3, "热力学第二定律": 1 } },
+                    { id: "C", text: "坚持到底，不轻易放弃", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 3, "相对论": 2, "热力学第二定律": 3 } },
+                    { id: "D", text: "分析形势，权衡利弊后行动", points: { "电磁波": 2, "量子纠缠": 0, "黑洞": 1, "相对论": 3, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 3,
+                text: "你如何看待变化？",
+                options: [
+                    { id: "A", text: "拥抱变化，喜欢新鲜感", points: { "电磁波": 3, "量子纠缠": 2, "黑洞": 0, "相对论": 1, "热力学第二定律": 3 } },
+                    { id: "B", text: "接受变化，但保持稳定的核心", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 3, "热力学第二定律": 2 } },
+                    { id: "C", text: "抵制变化，喜欢熟悉的环境", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 3, "相对论": 0, "热力学第二定律": 1 } },
+                    { id: "D", text: "分析变化背后的原因和规律", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 3, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 4,
+                text: "在解决问题时，你倾向于：",
+                options: [
+                    { id: "A", text: "寻找简单直接的解决方案", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 2, "相对论": 1, "热力学第二定律": 3 } },
+                    { id: "B", text: "考虑多种可能性，探索不同路径", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "C", text: "深入研究问题本质", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 3, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "D", text: "遵循已有的规则和方法", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 5,
+                text: "你如何处理信息？",
+                options: [
+                    { id: "A", text: "快速吸收，立即应用", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 0, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "B", text: "系统整理，形成知识体系", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 2, "热力学第二定律": 3 } },
+                    { id: "C", text: "深入思考，探索深层含义", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 2, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "D", text: "广泛收集，保持开放心态", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 0, "相对论": 1, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 6,
+                text: "在团队中，你通常扮演什么角色？",
+                options: [
+                    { id: "A", text: "领导者，指引方向", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 3, "相对论": 1, "热力学第二定律": 2 } },
+                    { id: "B", text: "协调者，促进合作", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "C", text: "执行者，落实计划", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 2, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "D", text: "思考者，提供创意", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } }
+                ]
+            },
+            {
+                id: 7,
+                text: "你如何看待时间？",
+                options: [
+                    { id: "A", text: "时间宝贵，要充分利用", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 1, "相对论": 2, "热力学第二定律": 3 } },
+                    { id: "B", text: "时间是相对的，取决于体验", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "C", text: "时间会治愈一切", points: { "电磁波": 1, "量子纠缠": 2, "黑洞": 2, "相对论": 1, "热力学第二定律": 1 } },
+                    { id: "D", text: "时间不可逆，要珍惜当下", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 8,
+                text: "面对未知，你的态度是：",
+                options: [
+                    { id: "A", text: "充满好奇，勇于探索", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 1, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "B", text: "谨慎对待，做好准备", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 2, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "C", text: "接受未知是生活的一部分", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 3, "相对论": 1, "热力学第二定律": 1 } },
+                    { id: "D", text: "分析未知，寻找规律", points: { "电磁波": 1, "量子纠缠": 1, "黑洞": 0, "相对论": 3, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 9,
+                text: "你如何处理冲突？",
+                options: [
+                    { id: "A", text: "直接面对，解决问题", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 3, "相对论": 1, "热力学第二定律": 2 } },
+                    { id: "B", text: "寻求共识，促进理解", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 0, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "C", text: "避免冲突，保持和谐", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 1, "相对论": 0, "热力学第二定律": 1 } },
+                    { id: "D", text: "分析冲突根源，寻找平衡", points: { "电磁波": 1, "量子纠缠": 1, "黑洞": 0, "相对论": 3, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 10,
+                text: "在学习新事物时，你更喜欢：",
+                options: [
+                    { id: "A", text: "实践中学习，边做边学", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 2, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "B", text: "系统学习，掌握理论基础", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 2, "热力学第二定律": 3 } },
+                    { id: "C", text: "探索学习，发现有趣的细节", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "D", text: "深入研究，理解本质原理", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 3, "相对论": 3, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 11,
+                text: "你如何看待规则和限制？",
+                options: [
+                    { id: "A", text: "挑战规则，寻求突破", points: { "电磁波": 3, "量子纠缠": 3, "黑洞": 2, "相对论": 1, "热力学第二定律": 0 } },
+                    { id: "B", text: "遵守规则，但寻找灵活性", points: { "电磁波": 1, "量子纠缠": 1, "黑洞": 0, "相对论": 2, "热力学第二定律": 2 } },
+                    { id: "C", text: "严格遵守规则，保持秩序", points: { "电磁波": 0, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "D", text: "理解规则背后的原理", points: { "电磁波": 1, "量子纠缠": 2, "黑洞": 0, "相对论": 3, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 12,
+                text: "在压力下，你表现如何？",
+                options: [
+                    { id: "A", text: "保持冷静，理性应对", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 2, "相对论": 3, "热力学第二定律": 2 } },
+                    { id: "B", text: "充满动力，高效行动", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 3, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "C", text: "寻求支持，共同面对", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 0, "相对论": 1, "热力学第二定律": 0 } },
+                    { id: "D", text: "分析压力源，寻找解决方案", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 1, "相对论": 3, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 13,
+                text: "你如何看待成功和失败？",
+                options: [
+                    { id: "A", text: "成功是努力的结果，失败是学习的机会", points: { "电磁波": 2, "量子纠缠": 1, "黑洞": 0, "相对论": 1, "热力学第二定律": 3 } },
+                    { id: "B", text: "成功和失败都是相对的，重要的是过程", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "C", text: "成功是最终目标，失败是需要避免的", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 3, "相对论": 0, "热力学第二定律": 1 } },
+                    { id: "D", text: "成功和失败都是成长的一部分", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 1, "相对论": 2, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 14,
+                text: "在社交关系中，你重视：",
+                options: [
+                    { id: "A", text: "广泛的人脉网络", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 0, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "B", text: "深度的情感连接", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 2, "相对论": 1, "热力学第二定律": 0 } },
+                    { id: "C", text: "相互支持和帮助", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 1, "相对论": 0, "热力学第二定律": 1 } },
+                    { id: "D", text: "平等和尊重", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 3, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 15,
+                text: "你如何看待未来？",
+                options: [
+                    { id: "A", text: "充满期待，积极规划", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 0, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "B", text: "保持开放，接受各种可能性", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "C", text: "关注当下，不过度担忧未来", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 3, "相对论": 1, "热力学第二定律": 1 } },
+                    { id: "D", text: "分析趋势，预测可能的发展", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 3, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 16,
+                text: "在解决复杂问题时，你倾向于：",
+                options: [
+                    { id: "A", text: "分解问题，逐步解决", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 1, "热力学第二定律": 3 } },
+                    { id: "B", text: "寻找创新的解决方案", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 0, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "C", text: "深入研究问题本质", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 3, "相对论": 3, "热力学第二定律": 1 } },
+                    { id: "D", text: "利用已有经验和知识", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 2, "相对论": 0, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 17,
+                text: "你如何处理情绪？",
+                options: [
+                    { id: "A", text: "直接表达，释放情绪", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 2, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "B", text: "理性分析，控制情绪", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 3, "热力学第二定律": 3 } },
+                    { id: "C", text: "内省思考，理解情绪根源", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 1, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "D", text: "寻求支持，与他人分享", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 0, "相对论": 0, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 18,
+                text: "在团队合作中，你重视：",
+                options: [
+                    { id: "A", text: "明确的分工和责任", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "B", text: "开放的沟通和创意", points: { "电磁波": 3, "量子纠缠": 3, "黑洞": 0, "相对论": 1, "热力学第二定律": 0 } },
+                    { id: "C", text: "共同的目标和价值观", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 2, "相对论": 1, "热力学第二定律": 1 } },
+                    { id: "D", text: "高效的执行和结果", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 3, "相对论": 2, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 19,
+                text: "你如何看待权威？",
+                options: [
+                    { id: "A", text: "尊重但不盲从", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 0, "相对论": 3, "热力学第二定律": 1 } },
+                    { id: "B", text: "挑战权威，寻求真相", points: { "电磁波": 3, "量子纠缠": 3, "黑洞": 2, "相对论": 1, "热力学第二定律": 0 } },
+                    { id: "C", text: "服从权威，保持秩序", points: { "电磁波": 0, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "D", text: "理解权威的来源和局限性", points: { "电磁波": 1, "量子纠缠": 1, "黑洞": 0, "相对论": 3, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 20,
+                text: "在面对批评时，你的反应是：",
+                options: [
+                    { id: "A", text: "虚心接受，积极改进", points: { "电磁波": 2, "量子纠缠": 1, "黑洞": 0, "相对论": 1, "热力学第二定律": 3 } },
+                    { id: "B", text: "理性分析，判断价值", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 3, "热力学第二定律": 2 } },
+                    { id: "C", text: "感到沮丧，但努力调整", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 2, "相对论": 0, "热力学第二定律": 0 } },
+                    { id: "D", text: "反思自我，深入理解", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 3, "相对论": 2, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 21,
+                text: "你如何看待风险？",
+                options: [
+                    { id: "A", text: "愿意冒险，追求刺激", points: { "电磁波": 3, "量子纠缠": 2, "黑洞": 3, "相对论": 0, "热力学第二定律": 0 } },
+                    { id: "B", text: "谨慎评估，适度冒险", points: { "电磁波": 1, "量子纠缠": 1, "黑洞": 0, "相对论": 2, "热力学第二定律": 2 } },
+                    { id: "C", text: "规避风险，保持安全", points: { "电磁波": 0, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "D", text: "分析风险，寻找平衡点", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 3, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 22,
+                text: "在创造新事物时，你更倾向于：",
+                options: [
+                    { id: "A", text: "从无到有，完全创新", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 0, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "B", text: "改进现有事物，优化功能", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "C", text: "结合不同元素，创造融合", points: { "电磁波": 1, "量子纠缠": 2, "黑洞": 0, "相对论": 3, "热力学第二定律": 1 } },
+                    { id: "D", text: "深入研究，理解本质后创造", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 3, "相对论": 3, "热力学第二定律": 0 } }
+                ]
+            },
+            {
+                id: 23,
+                text: "你如何看待公平和正义？",
+                options: [
+                    { id: "A", text: "平等对待所有人", points: { "电磁波": 2, "量子纠缠": 0, "黑洞": 0, "相对论": 3, "热力学第二定律": 2 } },
+                    { id: "B", text: "根据具体情况灵活判断", points: { "电磁波": 1, "量子纠缠": 2, "黑洞": 1, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "C", text: "以牙还牙，善恶有报", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 3, "相对论": 0, "热力学第二定律": 1 } },
+                    { id: "D", text: "追求最大多数人的幸福", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 0, "相对论": 1, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 24,
+                text: "在面对困难时，你更倾向于：",
+                options: [
+                    { id: "A", text: "坚持不懈，克服困难", points: { "电磁波": 2, "量子纠缠": 0, "黑洞": 3, "相对论": 1, "热力学第二定律": 3 } },
+                    { id: "B", text: "寻找方法，绕过困难", points: { "电磁波": 3, "量子纠缠": 2, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "C", text: "接受现实，调整期望", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 2, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "D", text: "分析困难，理解其本质", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 1, "相对论": 3, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 25,
+                text: "你如何看待美？",
+                options: [
+                    { id: "A", text: "美是主观的，因人而异", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } },
+                    { id: "B", text: "美是客观的，有标准可循", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "C", text: "美在于和谐与平衡", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "D", text: "美在于简洁与秩序", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 1, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 26,
+                text: "在决策时，你更依赖：",
+                options: [
+                    { id: "A", text: "直觉和感受", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 2, "相对论": 0, "热力学第二定律": 0 } },
+                    { id: "B", text: "逻辑和分析", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 3, "热力学第二定律": 3 } },
+                    { id: "C", text: "经验和传统", points: { "电磁波": 0, "量子纠缠": 0, "黑洞": 3, "相对论": 1, "热力学第二定律": 2 } },
+                    { id: "D", text: "多方信息和意见", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 27,
+                text: "你如何看待自由？",
+                options: [
+                    { id: "A", text: "自由是不受限制", points: { "电磁波": 3, "量子纠缠": 3, "黑洞": 3, "相对论": 0, "热力学第二定律": 0 } },
+                    { id: "B", text: "自由是选择的权利", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "C", text: "自由与责任并存", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 3, "热力学第二定律": 3 } },
+                    { id: "D", text: "自由是相对的概念", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 0, "相对论": 3, "热力学第二定律": 2 } }
+                ]
+            },
+            {
+                id: 28,
+                text: "在学习新知识时，你更关注：",
+                options: [
+                    { id: "A", text: "实用价值和应用", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "B", text: "理论基础和原理", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 2, "相对论": 3, "热力学第二定律": 2 } },
+                    { id: "C", text: "创新可能性和未来发展", points: { "电磁波": 2, "量子纠缠": 3, "黑洞": 0, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "D", text: "与已有知识的联系", points: { "电磁波": 1, "量子纠缠": 2, "黑洞": 0, "相对论": 1, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 29,
+                text: "你如何看待竞争？",
+                options: [
+                    { id: "A", text: "竞争是进步的动力", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 3, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "B", text: "合作比竞争更重要", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 1, "热力学第二定律": 0 } },
+                    { id: "C", text: "适度竞争促进发展", points: { "电磁波": 2, "量子纠缠": 1, "黑洞": 1, "相对论": 2, "热力学第二定律": 2 } },
+                    { id: "D", text: "竞争是自然法则", points: { "电磁波": 0, "量子纠缠": 0, "黑洞": 2, "相对论": 3, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 30,
+                text: "在面对变化时，你更倾向于：",
+                options: [
+                    { id: "A", text: "主动适应，调整自己", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 0, "相对论": 2, "热力学第二定律": 3 } },
+                    { id: "B", text: "保持稳定，坚守原则", points: { "电磁波": 0, "量子纠缠": 0, "黑洞": 3, "相对论": 0, "热力学第二定律": 1 } },
+                    { id: "C", text: "影响变化，引导方向", points: { "电磁波": 2, "量子纠缠": 1, "黑洞": 2, "相对论": 1, "热力学第二定律": 2 } },
+                    { id: "D", text: "观察变化，理解趋势", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } }
+                ]
+            },
+            {
+                id: 31,
+                text: "你如何看待知识和智慧？",
+                options: [
+                    { id: "A", text: "知识是积累的，智慧是应用的", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 1, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "B", text: "知识是外在的，智慧是内在的", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 2, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "C", text: "知识和智慧是统一的", points: { "电磁波": 2, "量子纠缠": 1, "黑洞": 0, "相对论": 1, "热力学第二定律": 1 } },
+                    { id: "D", text: "知识是相对的，智慧是绝对的", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 0, "相对论": 3, "热力学第二定律": 0 } }
+                ]
+            },
+            {
+                id: 32,
+                text: "在社交场合中，你更注重：",
+                options: [
+                    { id: "A", text: "表达自己，分享想法", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 1, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "B", text: "倾听他人，理解想法", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 2, "相对论": 2, "热力学第二定律": 0 } },
+                    { id: "C", text: "建立联系，拓展人脉", points: { "电磁波": 2, "量子纠缠": 0, "黑洞": 0, "相对论": 0, "热力学第二定律": 3 } },
+                    { id: "D", text: "深度交流，探讨思想", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 0, "相对论": 3, "热力学第二定律": 1 } }
+                ]
+            },
+            {
+                id: 33,
+                text: "你如何看待工作和生活的平衡？",
+                options: [
+                    { id: "A", text: "工作是生活的一部分，保持平衡", points: { "电磁波": 2, "量子纠缠": 2, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "B", text: "追求卓越，全力以赴", points: { "电磁波": 3, "量子纠缠": 0, "黑洞": 3, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "C", text: "享受生活，工作是手段", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 1, "热力学第二定律": 0 } },
+                    { id: "D", text: "根据情况调整，保持灵活", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 1, "相对论": 3, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 34,
+                text: "在面对挑战时，你更看重：",
+                options: [
+                    { id: "A", text: "挑战的难度和刺激性", points: { "电磁波": 3, "量子纠缠": 2, "黑洞": 3, "相对论": 0, "热力学第二定律": 0 } },
+                    { id: "B", text: "挑战带来的成长和学习", points: { "电磁波": 1, "量子纠缠": 3, "黑洞": 0, "相对论": 2, "热力学第二定律": 1 } },
+                    { id: "C", text: "挑战的意义和价值", points: { "电磁波": 0, "量子纠缠": 1, "黑洞": 1, "相对论": 3, "热力学第二定律": 2 } },
+                    { id: "D", text: "挑战的可行性和结果", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 0, "相对论": 1, "热力学第二定律": 3 } }
+                ]
+            },
+            {
+                id: 35,
+                text: "你如何看待死亡和永恒？",
+                options: [
+                    { id: "A", text: "死亡是自然的一部分", points: { "电磁波": 1, "量子纠缠": 0, "黑洞": 2, "相对论": 1, "热力学第二定律": 3 } },
+                    { id: "B", text: "通过影响和贡献获得永恒", points: { "电磁波": 3, "量子纠缠": 1, "黑洞": 0, "相对论": 0, "热力学第二定律": 2 } },
+                    { id: "C", text: "灵魂或精神可能永恒", points: { "电磁波": 0, "量子纠缠": 3, "黑洞": 3, "相对论": 0, "热力学第二定律": 0 } },
+                    { id: "D", text: "时间和空间是相对的，永恒是主观感受", points: { "电磁波": 0, "量子纠缠": 2, "黑洞": 0, "相对论": 3, "热力学第二定律": 1 } }
+                ]
+            }
+        ];
+
+        // 物理学概念数据
+        const physicsConcepts = {
+            "电磁波": {
+                icon: "fa-wifi",
+                title: "电磁波",
+                description: "你像电磁波一样充满能量，能够轻松地传递信息和影响他人。你善于沟通，适应能力强，能够在不同的环境中保持自己的特性。",
+                details: "你具有电磁波的特性：传播速度快，能够穿透各种障碍，适应性强。你善于表达自己的想法，能够与不同类型的人建立联系。你充满活力，喜欢尝试新事物，对周围的世界充满好奇。你能够快速适应变化的环境，保持自己的节奏和能量。",
+                physicsInfo: "电磁波是电场和磁场的振荡传播，包括无线电波、微波、红外线、可见光、紫外线、X射线和γ射线。电磁波不需要介质就能传播，在真空中的速度约为3×10^8米/秒。电磁波的波长和频率决定了它的特性和应用，从无线电通信到医疗成像，电磁波在现代科技中扮演着至关重要的角色。",
+                funFact: "有趣的是，电磁波理论最初由詹姆斯·克拉克·麦克斯韦在19世纪提出，后来由海因里希·赫兹通过实验证实。这一理论不仅解释了光的本质，还为现代通信技术奠定了基础。"
+            },
+            "量子纠缠": {
+                icon: "fa-link",
+                title: "量子纠缠",
+                description: "你像量子纠缠一样神秘而深刻，能够与他人建立超越常规的连接。你直觉敏锐，思维独特，常常能够理解他人无法理解的事物。",
+                details: "你具有量子纠缠的特性：超越空间和时间的连接，深层的直觉理解，神秘而复杂的思维方式。你善于建立深度的人际关系，能够与他人在精神层面产生共鸣。你思维开阔，能够接受和理解非常规的想法和概念。你对事物的本质有着深刻的洞察力，常常能够看到别人忽略的联系。",
+                physicsInfo: "量子纠缠是量子力学中的一种现象，当两个或多个粒子以某种方式相互作用后，它们的量子状态就会被关联起来，无论相距多远，对其中一个粒子的测量都会立即影响另一个粒子的状态。这种现象被爱因斯坦称为'鬼魅般的超距作用'，是量子力学中最神秘和最具争议的概念之一。",
+                funFact: "量子纠缠不仅是理论物理的重要概念，还具有实际应用价值。科学家们正在研究如何利用量子纠缠开发量子计算机和量子通信技术，这些技术有望在未来彻底改变我们处理信息的方式。"
+            },
+            "黑洞": {
+                icon: "fa-circle-o",
+                title: "黑洞",
+                description: "你像黑洞一样强大而神秘，具有强大的吸引力和深度。你意志坚定，内心丰富，能够吸收和整合各种信息和经验。",
+                details: "你具有黑洞的特性：强大的引力，无法逃逸的吸引力，丰富而复杂的内部结构。你有着强烈的个人魅力和影响力，能够吸引他人的注意和追随。你意志坚定，一旦确定目标就会全力以赴。你内心世界丰富而深邃，善于思考和内省。你能够吸收和整合各种信息和经验，形成自己独特的见解。",
+                physicsInfo: "黑洞是宇宙中引力极强的区域，甚至连光也无法逃逸。黑洞形成于大质量恒星耗尽燃料后发生的引力坍缩。黑洞的边界称为事件视界，一旦越过这个边界，任何物质和辐射都无法逃离黑洞的引力。尽管黑洞本身不可见，但科学家们可以通过观察黑洞对周围物质的影响来研究它们。",
+                funFact: "有趣的是，根据史蒂芬·霍金的理论，黑洞并不是完全'黑'的，它们会通过一种称为'霍金辐射'的过程缓慢地释放能量。这一理论挑战了传统的黑洞观念，表明黑洞也会随着时间逐渐蒸发。"
+            },
+            "相对论": {
+                icon: "fa-exchange",
+                title: "相对论",
+                description: "你像相对论一样深邃而灵活，能够从不同的角度看待问题。你思维开阔，善于分析，能够理解复杂的概念和关系。",
+                details: "你具有相对论的特性：相对的思维方式，灵活的视角，深入的分析能力。你善于从不同的角度看待问题，能够理解不同观点的合理性。你思维开阔，能够接受和理解复杂的概念和理论。你具有强烈的好奇心和求知欲，喜欢探索未知的领域。你善于分析和推理，能够发现事物之间的深层联系。",
+                physicsInfo: "相对论是爱因斯坦提出的物理学理论，包括狭义相对论和广义相对论。狭义相对论主要研究匀速运动的参考系，提出了时间膨胀、长度收缩和质能等价等概念。广义相对论则将引力解释为时空的弯曲，预言了引力波、黑洞等现象。相对论彻底改变了人们对时间、空间和引力的理解。",
+                funFact: "相对论的一些预测看似违背常识，但已经被实验多次证实。例如，GPS卫星上的时钟由于相对论效应每天会比地面上的时钟快约38微秒，如果不进行修正，GPS定位误差将很快累积到数公里。"
+            },
+            "热力学第二定律": {
+                icon: "fa-random",
+                title: "热力学第二定律",
+                description: "你像热力学第二定律一样注重秩序和效率，能够在复杂的系统中找到平衡。你务实可靠，善于组织和管理，能够将混乱转化为有序。",
+                details: "你具有热力学第二定律的特性：对秩序的追求，对效率的关注，对系统平衡的理解。你善于组织和管理，能够将复杂的任务分解为可管理的部分。你务实可靠，注重实际效果和长期价值。你具有强烈的责任感和使命感，能够在压力下保持冷静和理性。你善于分析系统和流程，寻找优化和改进的空间。",
+                physicsInfo: "热力学第二定律是热力学的基本定律之一，它指出热量不能自发地从低温物体传递到高温物体，或者说孤立系统的熵（无序度）总是增加的。这一定律解释了为什么某些过程是不可逆的，以及为什么能量转换总是存在效率损失。热力学第二定律不仅适用于物理学，还被广泛应用于信息论、生物学和社会科学等领域。",
+                funFact: "热力学第二定律与时间箭头的概念密切相关。正是由于熵增的不可逆性，我们才能区分过去和未来，感知到时间的流逝。这使得热力学第二定律成为少数能够区分时间方向的物理定律之一。"
+            }
+        };
+
+        // DOM元素
+        const welcomeSection = document.getElementById('welcome-section');
+        const testSection = document.getElementById('test-section');
+        const resultSection = document.getElementById('result-section');
+        const startTestBtn = document.getElementById('start-test-btn');
+        const retakeTestBtn = document.getElementById('retake-test-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const currentQuestionSpan = document.getElementById('current-question');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const progressPercentageSpan = document.getElementById('progress-percentage');
+        const progressValue = document.getElementById('progress-value');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        // 测试状态
+        let currentQuestionIndex = 0;
+        const userAnswers = [];
+        let selectedOption = null;
+        let isDarkMode = false;
+
+        // 初始化
+        function init() {
+            totalQuestionsSpan.textContent = questions.length;
+            updateProgress();
+            
+            // 事件监听
+            startTestBtn.addEventListener('click', startTest);
+            retakeTestBtn.addEventListener('click', retakeTest);
+            prevBtn.addEventListener('click', goToPrevQuestion);
+            nextBtn.addEventListener('click', goToNextQuestion);
+            themeToggleBtn.addEventListener('click', toggleTheme);
+        }
+
+        // 开始测试
+        function startTest() {
+            welcomeSection.classList.add('hidden');
+            testSection.classList.remove('hidden');
+            showQuestion(currentQuestionIndex);
+            updateProgress();
+        }
+
+        // 重新测试
+        function retakeTest() {
+            currentQuestionIndex = 0;
+            userAnswers.length = 0;
+            selectedOption = null;
+            resultSection.classList.add('hidden');
+            testSection.classList.remove('hidden');
+            showQuestion(currentQuestionIndex);
+            updateProgress();
+        }
+
+        // 显示问题
+        function showQuestion(index) {
+            const question = questions[index];
+            questionText.textContent = question.text;
+            currentQuestionSpan.textContent = index + 1;
+            
+            // 清空选项容器
+            optionsContainer.innerHTML = '';
+            
+            // 添加选项
+            question.options.forEach(option => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.dataset.optionId = option.id;
+                
+                // 检查是否已经回答过这个问题
+                const savedAnswer = userAnswers.find(answer => answer.questionId === question.id);
+                if (savedAnswer && savedAnswer.optionId === option.id) {
+                    optionBtn.classList.add('selected');
+                    selectedOption = option.id;
+                }
+                
+                optionBtn.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="option-icon">
+                            <span>${option.id}</span>
+                        </div>
+                        <span>${option.text}</span>
+                    </div>
+                `;
+                
+                optionBtn.addEventListener('click', () => selectOption(option.id, optionBtn));
+                optionsContainer.appendChild(optionBtn);
+            });
+            
+            // 更新导航按钮状态
+            updateNavButtons();
+        }
+
+        // 选择选项
+        function selectOption(optionId, button) {
+            // 移除之前选中的选项
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // 选中当前选项
+            button.classList.add('selected');
+            selectedOption = optionId;
+            
+            // 启用下一题按钮
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            nextBtn.disabled = false;
+            
+            // 保存答案
+            const currentQuestion = questions[currentQuestionIndex];
+            const existingAnswerIndex = userAnswers.findIndex(answer => answer.questionId === currentQuestion.id);
+            
+            if (existingAnswerIndex !== -1) {
+                userAnswers[existingAnswerIndex].optionId = optionId;
+            } else {
+                userAnswers.push({
+                    questionId: currentQuestion.id,
+                    optionId: optionId
+                });
+            }
+        }
+
+        // 前往上一题
+        function goToPrevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion(currentQuestionIndex);
+                updateProgress();
+            }
+        }
+
+        // 前往下一题
+        function goToNextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+                updateProgress();
+            } else {
+                // 测试完成，显示结果
+                calculateResult();
+            }
+        }
+
+        // 更新导航按钮状态
+        function updateNavButtons() {
+            // 上一题按钮
+            if (currentQuestionIndex === 0) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                prevBtn.disabled = true;
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                prevBtn.disabled = false;
+            }
+            
+            // 下一题按钮
+            const hasSelectedOption = selectedOption !== null;
+            const isLastQuestion = currentQuestionIndex === questions.length - 1;
+            
+            if (!hasSelectedOption) {
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                nextBtn.disabled = true;
+            } else {
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                nextBtn.disabled = false;
+            }
+            
+            // 更新下一题按钮文本
+            nextBtn.querySelector('span').innerHTML = isLastQuestion ? '查看结果' : '下一题<i class="fa fa-arrow-right ml-2"></i>';
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressPercentageSpan.textContent = `${Math.round(progress)}%`;
+            progressValue.style.width = `${progress}%`;
+        }
+
+        // 计算结果
+        function calculateResult() {
+            // 计算每个物理学概念的得分
+            const scores = {
+                "电磁波": 0,
+                "量子纠缠": 0,
+                "黑洞": 0,
+                "相对论": 0,
+                "热力学第二定律": 0
+            };
+            
+            // 遍历用户答案，累加得分
+            userAnswers.forEach(answer => {
+                const question = questions.find(q => q.id === answer.questionId);
+                const selectedOption = question.options.find(o => o.id === answer.optionId);
+                
+                if (selectedOption) {
+                    Object.keys(selectedOption.points).forEach(concept => {
+                        scores[concept] += selectedOption.points[concept];
+                    });
+                }
+            });
+            
+            // 找出得分最高的概念
+            let maxScore = 0;
+            let mainConcept = "";
+            
+            Object.keys(scores).forEach(concept => {
+                if (scores[concept] > maxScore) {
+                    maxScore = scores[concept];
+                    mainConcept = concept;
+                }
+            });
+            
+            // 计算匹配百分比（相对于理论最高分）
+            const theoreticalMaxScore = questions.length * 3; // 每道题最高3分
+            const matchPercentage = Math.round((maxScore / theoreticalMaxScore) * 100);
+            
+            // 准备其他匹配概念（按得分降序排列）
+            const otherMatches = Object.keys(scores)
+                .filter(concept => concept !== mainConcept)
+                .sort((a, b) => scores[b] - scores[a])
+                .map(concept => ({
+                    name: concept,
+                    percentage: Math.round((scores[concept] / theoreticalMaxScore) * 100),
+                    info: physicsConcepts[concept]
+                }));
+            
+            // 显示结果
+            displayResult(mainConcept, matchPercentage, otherMatches);
+        }
+
+        // 显示结果
+        function displayResult(mainConcept, matchPercentage, otherMatches) {
+            testSection.classList.add('hidden');
+            resultSection.classList.remove('hidden');
+            
+            // 填充主要结果
+            const conceptInfo = physicsConcepts[mainConcept];
+            document.getElementById('result-icon').innerHTML = `<i class="fa ${conceptInfo.icon}"></i>`;
+            document.getElementById('result-title').textContent = conceptInfo.title;
+            document.getElementById('result-description').textContent = conceptInfo.description;
+            document.getElementById('result-match').style.width = `${matchPercentage}%`;
+            document.getElementById('result-percentage').textContent = `${matchPercentage}%`;
+            
+            // 填充详细分析
+            document.getElementById('result-details').innerHTML = `
+                <p class="mb-4">${conceptInfo.details}</p>
+                <div class="flex items-center mt-4">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                        <i class="fa fa-lightbulb-o"></i>
+                    </div>
+                    <p class="italic">${conceptInfo.funFact}</p>
+                </div>
+            `;
+            
+            // 填充物理学知识
+            document.getElementById('physics-info').textContent = conceptInfo.physicsInfo;
+            
+            // 填充其他匹配
+            const otherMatchesContainer = document.getElementById('other-matches');
+            otherMatchesContainer.innerHTML = '';
+            
+            otherMatches.forEach(match => {
+                const matchCard = document.createElement('div');
+                matchCard.className = 'physics-card bg-gradient-to-br from-gray-50 to-gray-100';
+                matchCard.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center mr-3">
+                            <i class="fa ${match.info.icon} text-gradient"></i>
+                        </div>
+                        <h5 class="font-bold text-lg">${match.name}</h5>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${match.info.description}</p>
+                    <div class="flex items-center">
+                        <div class="w-full bg-gray-200 h-2 rounded-full mr-2">
+                            <div class="h-full bg-gradient-to-r from-primary/70 to-secondary/70 rounded-full" style="width: ${match.percentage}%"></div>
+                        </div>
+                        <span class="text-xs font-bold">${match.percentage}%</span>
+                    </div>
+                `;
+                otherMatchesContainer.appendChild(matchCard);
+            });
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark');
+                document.body.classList.remove('bg-gradient-to-br', 'from-blue-50', 'to-purple-50');
+                document.body.classList.add('bg-gray-900');
+                themeToggleBtn.innerHTML = '<span class="relative z-10"><i class="fa fa-sun-o mr-2"></i>切换主题</span><div class="reflection"></div>';
+            } else {
+                document.body.classList.remove('dark');
+                document.body.classList.remove('bg-gray-900');
+                document.body.classList.add('bg-gradient-to-br', 'from-blue-50', 'to-purple-50');
+                themeToggleBtn.innerHTML = '<span class="relative z-10"><i class="fa fa-moon-o mr-2"></i>切换主题</span><div class="reflection"></div>';
+            }
+        }
+
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>
