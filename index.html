@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p6ti · 你的性格是哪一种物理概念</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0c12;
+            color: #e8e6e3;
+            font-family: "Georgia", "Songti SC", "Noto Serif CJK SC", serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem 1rem 4rem;
+            line-height: 1.75;
+        }
+
+        .container {
+            max-width: 660px;
+            width: 100%;
+        }
+
+        /* ---------- 首页 ---------- */
+        #landing {
+            text-align: center;
+            padding-top: 8vh;
+        }
+
+        .logo {
+            font-size: 4.2rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            color: #f0ece6;
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+
+        .logo span {
+            color: #7eb8c9;
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #8a9aa8;
+            letter-spacing: 0.15em;
+            margin-bottom: 3rem;
+        }
+
+        .intro {
+            font-size: 0.98rem;
+            color: #b8c4cc;
+            max-width: 500px;
+            margin: 0 auto 2.8rem;
+            text-align: left;
+            padding: 0 0.5rem;
+        }
+
+        .intro em {
+            color: #d4c9a8;
+            font-style: italic;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #4a6a7a;
+            color: #c8d8e0;
+            padding: 0.85rem 2.8rem;
+            font-size: 1rem;
+            font-family: inherit;
+            letter-spacing: 0.12em;
+            cursor: pointer;
+            transition: all 0.35s ease;
+            border-radius: 1px;
+        }
+
+        .btn:hover {
+            background: #1a2a32;
+            border-color: #7eb8c9;
+            color: #f0ece6;
+        }
+
+        .hint {
+            margin-top: 2.5rem;
+            font-size: 0.75rem;
+            color: #4a5a66;
+            letter-spacing: 0.08em;
+        }
+
+        /* ---------- 题目 ---------- */
+        #quiz {
+            display: none;
+            padding-top: 3vh;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 1px;
+            background: #1e2a32;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 1px;
+            background: #7eb8c9;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .q-number {
+            font-size: 0.75rem;
+            color: #5a6a76;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.8rem;
+        }
+
+        .q-text {
+            font-size: 1.15rem;
+            color: #e0dcd6;
+            margin-bottom: 1.8rem;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .option {
+            background: #10161c;
+            border: 1px solid #1e2e38;
+            padding: 1rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: #b8c4cc;
+            text-align: left;
+            line-height: 1.55;
+            border-radius: 1px;
+        }
+
+        .option:hover {
+            border-color: #4a6a7a;
+            background: #141e26;
+            color: #e8e6e3;
+        }
+
+        .option.selected {
+            border-color: #7eb8c9;
+            background: #16242e;
+            color: #f0ece6;
+        }
+
+        /* ---------- 上下题导航 ---------- */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.8rem;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid #2a3a44;
+            color: #8a9aa8;
+            padding: 0.7rem 1rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border-radius: 1px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            border-color: #4a6a7a;
+            color: #c8d8e0;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        /* ---------- 结果 ---------- */
+        #result {
+            display: none;
+            padding-top: 2vh;
+            animation: fadeUp 0.8s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-kicker {
+            font-size: 0.7rem;
+            letter-spacing: 0.25em;
+            color: #5a7a8a;
+            margin-bottom: 0.6rem;
+        }
+
+        .result-name {
+            font-size: 2.4rem;
+            color: #f0ece6;
+            font-weight: 400;
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+
+        .result-en {
+            font-size: 0.85rem;
+            color: #6a8a9a;
+            letter-spacing: 0.08em;
+            font-style: italic;
+            margin-bottom: 2rem;
+        }
+
+        .result-block {
+            margin-bottom: 2rem;
+            padding-left: 1.2rem;
+            border-left: 1px solid #2a3a44;
+        }
+
+        .block-label {
+            font-size: 0.68rem;
+            letter-spacing: 0.2em;
+            color: #5a7a8a;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .block-text {
+            font-size: 0.98rem;
+            color: #c8d0d6;
+        }
+
+        .block-text.science {
+            color: #a8bcc8;
+            font-size: 0.93rem;
+        }
+
+        .quote {
+            font-size: 1rem;
+            color: #d4c9a8;
+            font-style: italic;
+            line-height: 1.7;
+        }
+
+        .quote-attr {
+            display: block;
+            margin-top: 0.4rem;
+            font-size: 0.8rem;
+            color: #6a7a86;
+            font-style: normal;
+            letter-spacing: 0.04em;
+        }
+
+        .bridge {
+            font-size: 0.98rem;
+            color: #b8c8d0;
+            line-height: 1.8;
+            margin-top: 0.2rem;
+        }
+
+        .share-line {
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #1a262e;
+            font-size: 0.85rem;
+            color: #6a7a86;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-again {
+            margin-top: 1.8rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .logo { font-size: 3rem; }
+            .result-name { font-size: 1.8rem; }
+            .q-text { font-size: 1.05rem; }
+            body { padding: 1.2rem 1rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ====== 首页 ====== -->
+    <div id="landing">
+        <div class="logo">p<span>6</span>ti</div>
+        <div class="subtitle">你 的 性 格 是 哪 一 种 物 理 概 念</div>
+
+        <div class="intro">
+            物理不只是一组方程与试验，<br>
+            它是宇宙为人类留下的语言。<br>
+            而你的存在，是<em>物理语言谱写的诗歌</em>。
+            <br><br>
+            十六种物理学概念，十六面镜子。<br>
+            看看你能从哪一个概念找到<em>自我原型</em>。
+        </div>
+
+        <button class="btn" onclick="startQuiz()">开始</button>
+        <div class="hint">共25道题 · 不收集任何数据</div>
+    </div>
+
+    <!-- ====== 题目 ====== -->
+    <div id="quiz">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="q-number" id="qNumber">01 / 25</div>
+        <div class="q-text" id="qText"></div>
+        <div class="options" id="options"></div>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="prevBtn" onclick="goPrev()">上一个</button>
+            <button class="nav-btn" id="nextBtn" onclick="goNext()">下一个</button>
+        </div>
+    </div>
+
+    <!-- ====== 结果 ====== -->
+    <div id="result">
+        <div class="result-kicker">你的物理性格是</div>
+        <div class="result-name" id="resultName"></div>
+        <div class="result-en" id="resultEn"></div>
+
+        <div class="result-block">
+            <div class="block-label">它是什么</div>
+            <div class="block-text science" id="resultScience"></div>
+        </div>
+
+        <div class="result-block">
+            <div class="block-label">你身上那条定律</div>
+            <div class="block-text" id="resultPersonality"></div>
+        </div>
+
+        <div class="result-block">
+            <div class="block-label">有人说过</div>
+            <div class="quote" id="resultQuote"></div>
+            <span class="quote-attr" id="resultQuoteAttr"></span>
+        </div>
+
+        <div class="result-block">
+            <div class="block-label">物理与人的交界</div>
+            <div class="bridge" id="resultBridge"></div>
+        </div>
+
+        <div class="share-line" id="shareLine"></div>
+        <div class="btn-again">
+            <button class="btn" onclick="resetQuiz()">再测一次</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ============================================================
+    //  题目数据（25题）
+    // ============================================================
+    const questions = [
+        {
+            text: "朋友遇到困难，你通常先做什么？",
+            options: [
+                { text: "安静听完，不急着给建议。", type: ["entropy", "blackhole"] },
+                { text: "帮对方把事情的来龙去脉理清楚，找到能下手的那一步。", type: ["laplace", "kepler"] },
+                { text: "先感受对方的情绪，心情跟着波动。", type: ["doppler", "resonance"] },
+                { text: "给出一个别人可能没想到的角度，哪怕听起来有点怪。", type: ["uncertainty", "tunneling"] }
+            ]
+        },
+        {
+            text: "面对“不确定性”，你更接近哪一种？",
+            options: [
+                { text: "很难受。我宁愿有一个确定的坏答案，也不想悬着。", type: ["laplace", "inertia"] },
+                { text: "可以接受，但我需要时间把它慢慢想清楚。", type: ["entropy", "kepler"] },
+                { text: "不确定性本身就是空间。没定下来的时候，一切皆有可能。", type: ["uncertainty", "schrodinger"] },
+                { text: "我经常在两种状态之间切换，取决于对面是谁。", type: ["waveParticle", "lorenz"] }
+            ]
+        },
+        {
+            text: "在一段关系里，你最看重的是——",
+            options: [
+                { text: "稳定。不需要轰轰烈烈，但希望轨道是清楚的。", type: ["kepler", "inertia"] },
+                { text: "共鸣。频率对上了，比什么都重要。", type: ["resonance", "doppler"] },
+                { text: "互相改变。好的关系应该让两个人都偏离原来的路径。", type: ["lorentz", "entanglement"] },
+                { text: "在对方身上看到自己没活出来的那一面。", type: ["waveParticle", "darkMatter"] }
+            ]
+        },
+        {
+            text: "独处的时候，你的脑子通常在——",
+            options: [
+                { text: "复盘。把发生过的事一遍遍重放，试图推演“如果当时……”。", type: ["laplace", "lorenz"] },
+                { text: "漫游。从一个念头跳到另一个，没有明确方向。", type: ["uncertainty", "doppler"] },
+                { text: "构建。在脑子里搭东西，模型、计划、或者一个完整的故事。", type: ["lorentz", "kepler"] },
+                { text: "放空。什么都不想，或者想一些根本不存在的东西。", type: ["schrodinger", "blackhole"] }
+            ]
+        },
+        {
+            text: "别人形容你，最常出现的是——",
+            options: [
+                { text: "“靠谱。” 答应的事基本作数。", type: ["inertia", "pauli"] },
+                { text: "“看不透。” 身上好像不止一个版本。", type: ["waveParticle", "darkMatter"] },
+                { text: "“温度差很大。” 对有的人极热，对有的人极冷。", type: ["lorenz", "doppler"] },
+                { text: "“不争不抢，但走得很远。”", type: ["tunneling", "blackhole"] }
+            ]
+        },
+        {
+            text: "你更愿意用哪一种方式，留在别人的记忆里？",
+            options: [
+                { text: "像一个稳定的参照物：能清楚想起对我的印象。", type: ["inertia", "laplace"] },
+                { text: "像一阵改变过方向的风：不常想起，但因我而改变过轨迹。", type: ["doppler", "lorentz"] },
+                { text: "像一种无法归类的存在：很难用一句话概括。", type: ["waveParticle", "uncertainty"] },
+                { text: "像一个安静的容器：在我这里保存着某些东西。", type: ["entropy", "resonance"] }
+            ]
+        },
+        {
+            text: "低谷的时候，你靠什么重新动起来？",
+            options: [
+                { text: "给自己搭一个很小的、确定能完成的结构。", type: ["kepler", "pauli"] },
+                { text: "等“想通”的时候。", type: ["schrodinger", "blackhole"] },
+                { text: "换一个环境，或者换一个看问题的角度。", type: ["lorentz", "tunneling"] },
+                { text: "跟一个人说说话。", type: ["resonance", "entanglement"] }
+            ]
+        },
+        {
+            text: "你相信宇宙对人是善意的吗？",
+            options: [
+                { text: "不相信“善意”，但它的客观比人的“善意”更让我安心。", type: ["laplace", "inertia"] },
+                { text: "不知道。但生命能在熵增里维持秩序，这件事本身已经足够温柔。", type: ["entropy", "schrodinger"] },
+                { text: "宇宙没有态度，“善意”只来源于人。", type: ["doppler", "resonance"] },
+                { text: "我认为没有，但我希望有。", type: ["tunneling", "entanglement"] }
+            ]
+        },
+        {
+            text: "你感觉自己的存在更像哪一种？",
+            options: [
+                { text: "恒定的光——不偏不倚，恒定常在。", type: ["pauli", "inertia"] },
+                { text: "弯折空间的引力——安静但能让所有东西都因它偏转。", type: ["blackhole", "darkMatter"] },
+                { text: "被观测才确定之物——依托目光而确定自己的存有。", type: ["uncertainty", "waveParticle"] },
+                { text: "看不见但影响一切之物——虚己游世，润物无声。", type: ["darkMatter", "entanglement"] }
+            ]
+        },
+        {
+            text: "当一件“不可能”的事出现在你面前，你的第一反应是——",
+            options: [
+                { text: "先试。不试怎么知道不行。", type: ["tunneling", "entanglement"] },
+                { text: "先在脑子里推演，看看逻辑上有没有漏洞。", type: ["laplace", "lorenz"] },
+                { text: "感觉一下这件事能否引发我的兴致。", type: ["resonance", "doppler"] },
+                { text: "既然遇到这种事，怀疑整个方向就不对。", type: ["lorentz", "uncertainty"] }
+            ]
+        },
+        {
+            text: "你如何表达“我在乎”？",
+            options: [
+                { text: "记住对方说过的小事，在某个时刻拿出来。", type: ["entropy", "kepler"] },
+                { text: "直接说。", type: ["inertia", "laplace"] },
+                { text: "在对方需要的时候出现，不需要的时候不打扰。", type: ["darkMatter", "entanglement"] },
+                { text: "发一首歌或一张图，看对方的反应。", type: ["resonance", "doppler"] }
+            ]
+        },
+        {
+            text: "你最怕别人怎么看你？",
+            options: [
+                { text: "“你变了。”", type: ["inertia", "pauli"] },
+                { text: "“你想太多了。”", type: ["lorenz", "uncertainty"] },
+                { text: "“你根本不在乎。”", type: ["darkMatter", "entropy"] },
+                { text: "“你不就是那样吗。”", type: ["waveParticle", "schrodinger"] }
+            ]
+        },
+        {
+            text: "一次争吵之后，你通常——",
+            options: [
+                { text: "需要先冷静，把逻辑理清楚再说话。", type: ["laplace", "kepler"] },
+                { text: "很难受，情绪会持续很久，直到对方给一个信号。", type: ["doppler", "resonance"] },
+                { text: "会主动退一步，换一个角度看整件事。", type: ["lorentz", "entanglement"] },
+                { text: "不太会吵，但心里会记住那个裂缝。", type: ["blackhole", "darkMatter"] }
+            ]
+        },
+        {
+            text: "你更愿意被人记住你的——",
+            options: [
+                { text: "稳定。", type: ["inertia", "kepler"] },
+                { text: "独特。", type: ["pauli", "waveParticle"] },
+                { text: "深度。", type: ["blackhole", "schrodinger"] },
+                { text: "温度。", type: ["resonance", "doppler"] }
+            ]
+        },
+        {
+            text: "你如何面对“失去”？",
+            options: [
+                { text: "会花很长时间复盘。", type: ["laplace", "lorenz"] },
+                { text: "接受得很快，但某个瞬间会被一件小事击中。", type: ["entropy", "blackhole"] },
+                { text: "相信有些连接不会因为距离而断绝。", type: ["entanglement", "darkMatter"] },
+                { text: "不去回想，虽然知道它在。", type: ["schrodinger", "uncertainty"] }
+            ]
+        },
+        {
+            text: "你如何面对“孤独”？",
+            options: [
+                { text: "不太会孤独。", type: ["inertia", "kepler"] },
+                { text: "会孤独，但不太会说出口，习惯自己消化。", type: ["blackhole", "darkMatter"] },
+                { text: "孤独是常态，它反而能维持自己，人群会消耗我。", type: ["schrodinger", "entropy"] },
+                { text: "孤独的时候，会去找自己的深交。", type: ["resonance", "entanglement"] }
+            ]
+        },
+        {
+            text: "你做决定时，更依赖——",
+            options: [
+                { text: "推演。把每一种可能都过一遍。", type: ["laplace", "kepler"] },
+                { text: "感觉。身体先知道，脑子后跟上。", type: ["resonance", "doppler"] },
+                { text: "直觉。说不清为什么就这么决定了。", type: ["uncertainty", "schrodinger"] },
+                { text: "底线。有些事就是不能做，剩下的都可以谈。", type: ["inertia", "pauli"] }
+            ]
+        },
+        {
+            text: "你最欣赏的人身上，通常有——",
+            options: [
+                { text: "一种不慌不忙的确定感。", type: ["kepler", "inertia"] },
+                { text: "一种无法被归类的丰富。", type: ["waveParticle", "uncertainty"] },
+                { text: "一种安静但巨大的引力。", type: ["blackhole", "darkMatter"] },
+                { text: "一种能让周围人共振的频率。", type: ["resonance", "entanglement"] }
+            ]
+        },
+        {
+            text: "你如何面对“被误解”？",
+            options: [
+                { text: "会解释，但只解释一次。", type: ["laplace", "pauli"] },
+                { text: "不太解释。懂的人不需要，不懂的人解释也没用。", type: ["blackhole", "darkMatter"] },
+                { text: "会难过，但不会因此改变自己。", type: ["inertia", "waveParticle"] },
+                { text: "会反思自己的表达方式。", type: ["lorenz", "doppler"] }
+            ]
+        },
+        {
+            text: "你更接近哪一种“时间感”？",
+            options: [
+                { text: "线性。过去、现在、未来，一步一步。", type: ["laplace", "kepler"] },
+                { text: "循环。有些事会以不同的面目回来。", type: ["lorenz", "entropy"] },
+                { text: "膨胀。越往前走，可能性越多。", type: ["uncertainty", "schrodinger"] },
+                { text: "相对。跟对的人在一起，时间会变。", type: ["lorentz", "resonance"] }
+            ]
+        },
+        {
+            text: "你身上最矛盾的部分是——",
+            options: [
+                { text: "想要稳定，又怕被困住。", type: ["inertia", "tunneling"] },
+                { text: "渴望靠近，又需要距离。", type: ["entanglement", "doppler"] },
+                { text: "理性上想得通，感受上过不去。", type: ["laplace", "lorenz"] },
+                { text: "看起来什么都可以，其实心里有强烈的准则。", type: ["waveParticle", "pauli"] }
+            ]
+        },
+        {
+            text: "如果用一个物理动作形容你，你选——",
+            options: [
+                { text: "匀速直线运动，很少偏航。", type: ["inertia", "kepler"] },
+                { text: "绕着某个中心转，时近时远。", type: ["kepler", "darkMatter"] },
+                { text: "在两个状态之间跃迁，没有中间态。", type: ["schrodinger", "uncertainty"] },
+                { text: "穿过一堵墙，不会碰撞。", type: ["tunneling", "entanglement"] }
+            ]
+        },
+        {
+            text: "你更愿意相信——",
+            options: [
+                { text: "一切都有原因，只是还没找到。", type: ["laplace", "kepler"] },
+                { text: "有些事就是随机的，没有为什么。", type: ["uncertainty", "entropy"] },
+                { text: "原因和结果之间可能非常远。", type: ["lorenz", "blackhole"] },
+                { text: "重要的不是原因，是如何面对结果。", type: ["tunneling", "resonance"] }
+            ]
+        },
+        {
+            text: "你最想对过去的自己说什么？",
+            options: [
+                { text: "“你做的每一个决定，后来都有用。”", type: ["kepler", "inertia"] },
+                { text: "“不用急着成为谁，你可以是任何存在。”", type: ["waveParticle", "schrodinger"] },
+                { text: "“这一切都将过去。”", type: ["tunneling", "blackhole"] },
+                { text: "“你当时感受到的，都是真的。”", type: ["doppler", "resonance"] }
+            ]
+        },
+        {
+            text: "你更害怕哪一种“消失”？",
+            options: [
+                { text: "被忘记。", type: ["darkMatter", "inertia"] },
+                { text: "失去自己。", type: ["pauli", "waveParticle"] },
+                { text: "失去连接。", type: ["entanglement", "doppler"] },
+                { text: "停止变化。", type: ["entropy", "tunneling"] }
+            ]
+        }
+    ];
+
+    // ============================================================
+    //  结果数据（16 种）
+    // ============================================================
+    const results = {
+        entropy: {
+            name: "熵",
+            en: "Entropy · 热力学第二定律",
+            science: "在一个孤立系统中，熵（无序的程度）永远不会自发减少。热力学第二定律指向一个方向，即时间箭头。但生命能通过从环境中汲取秩序，在局部维持着高度有序的结构。",
+            personality: "你的力量在于一种安静而持续的抵抗：在世界趋向松散的时候，你在自己的尺度上维持着某种秩序。你明白不是所有的东西都值得抓住，但能守住自己的真质。",
+            quote: "“生命以负熵为生。”",
+            quoteAttr: "—— 埃尔温·薛定谔，《生命是什么》（1944）",
+            bridge: "你深知热力学第二定律说万物终将走向均匀与沉寂，才更应向死而生，于生命的每一日以自由意志起舞。",
+            share: "我的性格是「熵」——在宇宙趋向无序的宿命中，唯独我选择固执而有序地活着。"
+        },
+        laplace: {
+            name: "拉普拉斯妖",
+            en: "Laplace's Demon · 经典决定论",
+            science: "拉普拉斯妖是后世对法国数学家、天文学家皮埃尔-西蒙·拉普拉斯所设想的一种理想智能的称呼。按照拉普拉斯的设想，如果一种智能在某一时刻能够知道自然界的一切作用力以及构成自然界的各个存在者之间的相对位置，并具有足够强的分析能力，那么它便能够由宇宙的当前状态推知其过去和未来。这一思想后来成为讨论拉普拉斯式决定论以及决定论与可预测性关系的经典思想实验。",
+            personality: "你接受不了不确定性，想让事情变得可以承受，于是习惯在混沌里找脉络，在情绪里找因果。别人觉得你冷静、可靠，甚至有一点控制欲。",
+            quote: "“我们可以把宇宙的现状看作其过去的结果和未来的原因。”",
+            quoteAttr: "—— 皮埃尔-西蒙·拉普拉斯，《概率论哲学随笔》（1814）",
+            bridge: "海森堡不确定性原理指出，我们无法同时精确确定一个粒子的动量和位置。但那个想要推演一切的你，仍愿意在一个人人都在即兴演出的世界中，创造独属于自己的可知的茧。",
+            share: "我的性格是「拉普拉斯妖」——我知道宇宙并不完全可推演，但我所理解的也同样真实。"
+        },
+        waveParticle: {
+            name: "波粒二象性",
+            en: "Wave-Particle Duality · 量子力学",
+            science: "光波的二象性是量子力学描述光同时具有波动性与粒子性的核心理论，其本质为特定频段的光子流。波动性表现为干涉、衍射现象，粒子性体现为光电效应与康普顿效应，量子力学通过概率波函数描述其统计特性。",
+            personality: "你身上有不止一个版本。在有些人面前你是安静的粒子，在另一些人面前你是弥散的波。你很难被一句话定义，你的多面性同样真诚。",
+            quote: "“一个深刻真理的反面，很可能是另一个深刻真理。”",
+            quoteAttr: "—— 尼尔斯·玻尔",
+            bridge: "波和粒子从不相同，但它们共同构成了同一个东西。你内在那些看似矛盾的部分，只是同一个你在不同的观测条件下显出的不同的形状。",
+            share: "我的性格是「波粒二象性」——你问我是谁，答案在于你是谁。"
+        },
+        doppler: {
+            name: "多普勒效应",
+            en: "Doppler Effect · 波源与观测者",
+            science: "多普勒效应是指波源和观测者之间存在相对运动时，观测者接收到的波频率与波源实际频率发生偏移的现象。以机械波为例，当波源向观测者运动时，波被压缩，波长变得较短，频率变得较高（蓝移）；当波源远离观测者时会产生相反的效应，波被拉长，波长变长，频率变得较低（红移）。波源的速度越高，所产生的效应越大。根据波红（或蓝）移的程度，可以计算出波源循着观测方向运动的速度。",
+            personality: "你对“距离”极其敏感。一个人靠近你，你会不自觉地升温；一个人后退，你也能清楚地听见频率下坠的声音。你容易在关系里共振，也容易因为别人的频率而摇晃。你的热情和疲惫，往往来自同一个地方。",
+            quote: "“让你们的相聚之中有些许空隙，让天际的清风在你们之间舞动。”",
+            quoteAttr: "—— 纪伯伦，《先知·论婚姻》",
+            bridge: "多普勒效应里没有“错的频率”，只有“正在改变的距离”。你不需要为每一次蓝移或红移而悲喜。波源和观测者都在动，频率本来就会变。",
+            share: "我的性格是「多普勒效应」——靠近时升温，远离时听得见频率下坠。"
+        },
+        lorentz: {
+            name: "洛伦兹变换",
+            en: "Lorentz Transformation · 狭义相对论",
+            science: "洛伦兹变换是狭义相对论中两个作相对匀速运动的惯性参考系（S和S′）之间的坐标变换，是观测者在不同惯性参考系之间对物理量进行测量时所进行的转换关系，在数学上表现为一套方程组。洛伦兹变换最初用来调和19世纪建立起来的经典电动力学同牛顿力学之间的矛盾，后来成为狭义相对论中的基本方程组。",
+            personality: "你活在一种“高速”里，与常人似乎不在同一时空。你尊重那些跟得上你思维节奏的人，也愿意为真正值得的关系调整自己的参考系，但调整不等于消失。",
+            quote: "“当你和一个漂亮的姑娘坐在一起一小时，感觉就像一分钟。但如果你坐在一个热火炉上一分钟，感觉比一小时还长。这就是相对论。”",
+            quoteAttr: "—— 阿尔伯特·爱因斯坦",
+            bridge: "洛伦兹变换允许你换一个参考系，却没有要求你放弃自己的。在理解另一个人的同时，你仍然保有自己时间流逝的方式。",
+            share: "我的性格是「洛伦兹变换」——错位的时空也无法阻隔我们的连接。"
+        },
+        uncertainty: {
+            name: "不确定性原理",
+            en: "Heisenberg Uncertainty Principle · 量子力学",
+            science: "不确定性原理是粒子具有波粒二象性的必然结果，是量子力学中的一个基本原理。不确定性原理讲的是对两个力学量同时测量时两个力学量测量值的不确定度之间的关系，表述为不可能同时精确确定一个基本粒子的位置和动量。",
+            personality: "你与模糊共处，深知不是所有事都需要在当下决定。别人觉得你捉摸不透，但你只是欣赏事物的丰富。",
+            quote: "“我们观察到的不是自然本身，而是我们提问方式所揭示的自然。”",
+            quoteAttr: "—— 维尔纳·海森堡，《物理学和哲学》（1958）",
+            bridge: "如果你把每一段关系、每一个自己都测量到小数点后，最像“活着”的那部分就会模糊。承认一种结构性的、不可消除的“无知”，这也是一种有知。",
+            share: "我的性格是「不确定性原理」——各种答案对我而言都足够有趣，这就是最大的答案了。"
+        },
+        schrodinger: {
+            name: "薛定谔的猫",
+            en: "Schrödinger's Cat · 量子叠加",
+            science: "薛定谔设想：一只猫、一瓶毒药和一个放射源被放在一个密封的盒子里。如果盒子内的探测器检测到放射性（放射源中发生了单个原子衰变），那么烧瓶就会被打碎，释放出毒药杀死猫。当人们打开盒子时，看到的猫要么活着要么死亡。但根据哥本哈根解释，原子放射源中的原子处于衰变与不衰变的叠加态，猫应当处于活着与死亡的叠加态。这个思想实验最初是对哥本哈根解释的批评，但是这个看似自相矛盾的实验如今成了量子力学基本图像的一部分。",
+            personality: "你心里住着好几个没有坍缩的可能性。你可以在同一段时间里，既想靠近又想离开，既确信又怀疑。如果说你确定自己有一种活法，那就是“自己不止一种活法”。你只在真正被看见的时候，才交出一个确定的版本。",
+            quote: "“我栖居于可能性——一座比散文更美的房子。”",
+            quoteAttr: "—— 艾米莉·狄金森",
+            bridge: "在被观测之前，系统可以同时处于多个可能状态。比起询问那只猫最终是否被观测到，不如保存“它在箱子打开之前可能同时是很多东西”的可能。很多人很早就把自己坍缩成了一个安全的答案，但对你而言，在叠加态里又何妨呢？",
+            share: "我的性格是「薛定谔的猫」——我不急着定义自己，直到站在光里。"
+        },
+        tunneling: {
+            name: "量子隧穿",
+            en: "Quantum Tunnelling · 势垒穿透",
+            science: "量子隧穿是微观粒子在经典力学规则下无法越过能量势垒时，仍能以一定概率穿过势垒的量子力学现象，是量子力学中具有普适性的基本效应，适用于电子、原子、原子核等各类微观粒子。",
+            personality: "人们常将力量定义为“突破”那堵墙，但你的力量是安静持续地穿过原本穿不过去的地方。",
+            quote: "“在波动力学里，不存在不可穿透的势垒。此刻在这个房间里的任何人，都有一个有限的概率，不打开门就离开这里——当然，也不是从窗户被扔出去。”",
+            quoteAttr: "—— 乔治·伽莫夫，转述自 R.H. 福勒在伦敦皇家学会听完伽莫夫报告后的评论",
+            bridge: "在经典力学里，一个能量不够的粒子撞上一堵墙，一定会被弹回来。但在量子力学里，波函数会在墙内指数衰减，于是粒子有一定概率直接出现在墙的另一侧。“过不去”之物未尝没有概率出现在另一边，量子力学给所有阻隔留下了一道缝。",
+            share: "我的性格是「量子隧穿」——过不去吗？我会去另一边看看。"
+        },
+        kepler: {
+            name: "开普勒定律",
+            en: "Kepler's Laws · 行星轨道",
+            science: "行星沿椭圆轨道绕恒星运行，恒星位于椭圆的一个焦点上。行星在靠近太阳时运动更快，远离时更慢，于是它在相等时间内扫过的面积永远相等。这是有心力场中角动量（半径×速度）守恒的体现。",
+            personality: "你身上有一种稳定的引力。你不追求匀速的亲密，但你给出不变的“面积”，用自己的方式与他人同在。",
+            quote: "“行星的轨道除了完美的椭圆，不可能是别的形状。”",
+            quoteAttr: "—— 约翰内斯·开普勒，《新天文学》（1609）",
+            bridge: "开普勒定律里没有“均匀”，却有“守恒”。你知道人不能每一天都以同样的强度爱着、在乎着。但把时间拉长，你扫过的面积，从来不比任何人少。你依旧是你。",
+            share: "我的性格是「开普勒定律」——我仍然完美，我仍然守恒。"
+        },
+        lorenz: {
+            name: "洛伦兹吸引子",
+            en: "Lorenz Attractor · 混沌理论",
+            science: "洛伦兹吸引子来自一个简化的对流模型。它只有三个变量，却永远不会重复自己的轨迹：两条初始条件极其接近的轨道，会在短时间内指数分离——这就是“蝴蝶效应”的来源。但分离之后，它们又被同一组看不见的翼吸引回来，永远在有序与无序的边界上徘徊。",
+            personality: "你对“微小”的东西有感知。一句话、一个眼神、一次没有发生的对话，都可能在你内部引发一场遥远的天气。你身上同时存在极端的敏感和极端的韧性，容易被扰动，但从来不会真正散掉。你一直在两个“翼”之间来回——秩序和混乱，理性和感受，靠近和抽离。",
+            quote: "“可预测性：巴西一只蝴蝶扇动翅膀，会在德克萨斯引发龙卷风吗？”",
+            quoteAttr: "—— 爱德华·诺顿·洛伦兹，1972年美国科学促进会演讲标题",
+            bridge: "洛伦兹吸引子的轨迹永远不会重复，却永远被同一组方程承载。秩序的源头是它，混乱的源头也是它。易受扰动是不受扰动的本质。",
+            share: "我的性格是「洛伦兹吸引子」——吹万不同之风，一而生无限之万籁。"
+        },
+        inertia: {
+            name: "惯性",
+            en: "Inertia · 牛顿第一定律",
+            science: "物体保持静止状态或匀速直线运动状态的性质，称为惯性。惯性是物体的一种固有属性，表现为物体对其运动状态变化的一种阻抗程度，质量是物体惯性大小的量度。物体质量越大惯性越大。",
+            personality: "你拥有稳固的内核，重视一切。你不轻易开始一段关系、一个项目、一个习惯，而一旦开始了，你总能坚持到最后。",
+            quote: "“每个物体都保持其静止状态或沿直线匀速运动的状态，除非受到外加力迫使它改变这种状态。”",
+            quoteAttr: "—— 艾萨克·牛顿，《自然哲学的数学原理》（1687）",
+            bridge: "在这个纷杂的世界里，你的“不容易被推动”恰恰是一种力量。",
+            share: "我的性格是「惯性」——我不轻易开始，也不轻易停下。"
+        },
+        resonance: {
+            name: "共振",
+            en: "Resonance · 受迫振动",
+            science: "当一个系统被外界以接近其固有频率的节奏驱动时，振幅会急剧增大。",
+            personality: "你对“频率”极其敏感，社交开放视能否引发共鸣而定。或许有人说你不够热情，但对于对上“频率”的人，“振幅”可以很大。",
+            quote: "“敲击某个东西，它总是会自动挑选出自己的共振频率。”",
+            quoteAttr: "—— 马特·斯特拉斯勒，哈佛大学粒子物理学家，载 Quanta Magazine（2022）",
+            bridge: "共振需要你有固有频率与外界的驱动力。你不必改变自己的固有频率，总会有一个频率对得上的人。",
+            share: "我的性格是「共振」——千万人中万幸得以相逢。"
+        },
+        entanglement: {
+            name: "量子纠缠",
+            en: "Quantum Entanglement · 非定域关联",
+            science: "在量子力学里，当几个粒子在彼此相互作用后，由于各个粒子所拥有的特性已综合成为整体性质，无法单独描述各个粒子的性质，只能描述整体系统的性质，则称这现象为量子缠结或量子纠缠。两个粒子一旦纠缠，无论相隔多远，对其中一个的测量会瞬间影响另一个的状态。",
+            personality: "你也说不清自己的感知从何而来，即使想到很久不联系的人，都会产生说不清的情感。你靠“纠缠”维持关系，距离和时间都切不断那根线。",
+            quote: "“我永远会是你的一部分，你永远会是我的一部分。”",
+            quoteAttr: "—— 李政道，物理学家、量子纠缠早期研究者之一，2024年临终遗言",
+            bridge: "两个粒子可以相隔整个宇宙，但仍然是同一个系统的一部分。纵然相望不相闻，你相信另一种“同在”。",
+            share: "我的性格是「量子纠缠」——知君仙骨无寒暑，千载相逢犹旦暮。"
+        },
+        darkMatter: {
+            name: "暗物质",
+            en: "Dark Matter · 不可见的质量",
+            science: "暗物质是理论上提出的可能存在于宇宙中的一种不可见的物质，它可能是宇宙物质的主要组成部分，但又不属于构成可见天体的任何一种已知的物质。大量天文学观测中发现的疑似违反牛顿万有引力的现象可以在假设暗物质存在的前提下得到很好的解释。现代天文学通过天体的运动、牛顿万有引力的现象、引力透镜效应、宇宙的大尺度结构的形成、微波背景辐射等观测结果表明暗物质可能大量存在于星系、星团及宇宙中，其质量远大于宇宙中全部可见天体的质量总和。结合宇宙中微波背景辐射各向异性观测和标准宇宙学模型（ΛCDM模型）可确定宇宙中暗物质占全部物质总质量的85%、占宇宙总质能的26.8%。",
+            personality: "你不邀功，甚至不太习惯被看见，但你知道自己的重量在哪里。",
+            quote: "“实质性的东西，用眼睛是看不见的。”",
+            quoteAttr: "—— 安托万·德·圣埃克苏佩里，《小王子》（1943）",
+            bridge: "没有人看见暗物质，但它的质量对于星系团的维持至关重要。",
+            share: "我的性格是「暗物质」——我的价值不在于你的目光。"
+        },
+        pauli: {
+            name: "泡利不相容原理",
+            en: "Pauli Exclusion Principle · 量子独特性",
+            science: "在由费米子组成的量子系统中，两个或多个费米子不能处于完全相同的量子态。在一个原子中，没有两个电子可以占据完全相同的量子态。这条原理决定了元素周期表的结构，也决定了物质的结构与性质。若泡利原理失效，宇宙将坍缩为一锅均匀的费米子汤。",
+            personality: "你有一种不可归并的独特性，在人群里可能显得有点“不合群”，但你只是拒绝放弃自己的量子数。",
+            quote: "“我并不主张可复制的东西本身比独特的东西更重要。但我确实主张，独特的东西超出了科学方法的处理范围。”",
+            quoteAttr: "—— 沃尔夫冈·泡利，《物理哲学文集》",
+            bridge: "宇宙在保证每一个电子都有自己的位置，你只需要站稳自己的那个量子态。",
+            share: "我的性格是「泡利不相容原理」——我独占一方天地。"
+        },
+        blackhole: {
+            name: "黑洞",
+            en: "Black Hole · 引力与视界",
+            science: "黑洞是广义相对论所预言的一类致密天体，其引力极其强大，使视界内的逃逸速度超过光速，时空曲率大到光也无法从事件视界逃脱。黑洞的核心特征是事件视界，即物质和辐射只能进入、无法逃逸的单向边界。当恒星核燃料耗尽，若核心残余质量超过中子星支撑极限，坍缩将无法停止，最终形成黑洞。中等质量黑洞可能通过黑洞并合逐步成长；超大质量黑洞则可能源于早期宇宙气体云直接坍缩或种子黑洞的持续吸积与并合。黑洞辐射是以量子效应理论推测出的一种由黑洞散发出来的热辐射。",
+            personality: "你身上有一种很深的“引力”。别人会被你吸引，但很难真正进入你的内部。你习惯了独自承载一些东西，因为事件视界足够深。但你知道，你仍在向外散发能量。",
+            quote: "“如果你感觉自己身处黑洞，不要放弃，总有出路。”",
+            quoteAttr: "—— 斯蒂芬·霍金，2016年讲座《Into a Black Hole》",
+            bridge: "黑洞的事件视界是单向的，外面的人看不见里面。但黑洞辐射告诉我们，黑洞不是永恒的监狱。你心里那些“出不来”的东西，也在以极其缓慢、极其微小的方式，向外辐射着。",
+            share: "我的性格是「黑洞」——深不可测而容纳一切的存在，也可以是太阳吗？"
+        }
+    };
+
+    // ============================================================
+    //  类型顺序（用于遍历与并列时取先）
+    // ============================================================
+    const TYPE_KEYS = [
+        "inertia", "kepler", "laplace",
+        "entropy", "lorenz",
+        "lorentz",
+        "waveParticle", "uncertainty", "schrodinger", "tunneling", "entanglement", "pauli",
+        "doppler", "resonance",
+        "blackhole", "darkMatter"
+    ];
+
+    // ============================================================
+    //  状态
+    // ============================================================
+    let currentIndex = 0;
+    let selections = [];   // 每题选中的选项索引，null 表示未选
+    let scores = {};
+
+    // ============================================================
+    //  函数
+    // ============================================================
+    function startQuiz() {
+        document.getElementById("landing").style.display = "none";
+        document.getElementById("quiz").style.display = "block";
+        document.getElementById("result").style.display = "none";
+        currentIndex = 0;
+        selections = new Array(questions.length).fill(null);
+        scores = {};
+        TYPE_KEYS.forEach(function (k) { scores[k] = 0; });
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        var q = questions[currentIndex];
+
+        // 题号
+        document.getElementById("qNumber").textContent =
+            String(currentIndex + 1).padStart(2, "0") + " / " + String(questions.length).padStart(2, "0");
+
+        // 进度 = 已选数量 / 总题数
+        var answered = selections.filter(function (s) { return s !== null; }).length;
+        document.getElementById("progressFill").style.width = (answered / questions.length * 100) + "%";
+
+        // 题目
+        document.getElementById("qText").textContent = q.text;
+
+        // 选项
+        var optContainer = document.getElementById("options");
+        optContainer.innerHTML = "";
+        q.options.forEach(function (opt, i) {
+            var btn = document.createElement("button");
+            btn.className = "option";
+            btn.textContent = opt.text;
+            if (selections[currentIndex] === i) {
+                btn.classList.add("selected");
+            }
+            btn.addEventListener("click", function () {
+                selectOption(i);
+            });
+            optContainer.appendChild(btn);
+        });
+
+        // 导航按钮状态
+        document.getElementById("prevBtn").disabled = (currentIndex === 0);
+        var nextBtn = document.getElementById("nextBtn");
+        nextBtn.disabled = (selections[currentIndex] === null);
+        nextBtn.textContent = (currentIndex === questions.length - 1) ? "查看结果" : "下一个";
+    }
+
+    function selectOption(optIndex) {
+        // 撤销该题旧选择的加分
+        if (selections[currentIndex] !== null) {
+            var oldTypes = questions[currentIndex].options[selections[currentIndex]].type;
+            oldTypes.forEach(function (t) {
+                if (scores[t] !== undefined) scores[t] -= 1;
+            });
+        }
+        // 记录新选择并加分
+        selections[currentIndex] = optIndex;
+        var newTypes = questions[currentIndex].options[optIndex].type;
+        newTypes.forEach(function (t) {
+            if (scores[t] !== undefined) scores[t] += 1;
+        });
+        // 重绘当前题（更新高亮与导航按钮）
+        renderQuestion();
+    }
+
+    function goPrev() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion();
+        }
+    }
+
+    function goNext() {
+        if (selections[currentIndex] === null) return;
+        if (currentIndex === questions.length - 1) {
+            showResult();
+        } else {
+            currentIndex++;
+            renderQuestion();
+        }
+    }
+
+    function showResult() {
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("result").style.display = "block";
+
+        var bestKey = TYPE_KEYS[0];
+        var bestScore = -1;
+        TYPE_KEYS.forEach(function (k) {
+            if (scores[k] > bestScore) {
+                bestScore = scores[k];
+                bestKey = k;
+            }
+        });
+
+        var r = results[bestKey];
+        document.getElementById("resultName").textContent = r.name;
+        document.getElementById("resultEn").textContent = r.en;
+        document.getElementById("resultScience").textContent = r.science;
+        document.getElementById("resultPersonality").textContent = r.personality;
+        document.getElementById("resultQuote").textContent = r.quote;
+        document.getElementById("resultQuoteAttr").textContent = r.quoteAttr;
+        document.getElementById("resultBridge").textContent = r.bridge;
+        document.getElementById("shareLine").textContent = "“" + r.share + "”";
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function resetQuiz() {
+        document.getElementById("result").style.display = "none";
+        document.getElementById("landing").style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+</script>
+</body>
+</html>
